@@ -1,0 +1,463 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:OpenFanControl.ViewModels"
+        xmlns:views="clr-namespace:OpenFanControl.Views"
+        xmlns:conv="clr-namespace:OpenFanControl.Converters"
+        x:Class="OpenFanControl.Views.MainWindow"
+        Title="Open Fan Control"
+        Width="960" Height="640"
+        MinWidth="780" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        TransparencyLevelHint="AcrylicBlur, Mica"
+        Background="Transparent">
+
+    <Border CornerRadius="12" ClipToBounds="True"
+            Background="{DynamicResource WindowBackground}">
+        <Grid RowDefinitions="44,*,Auto">
+
+            <!-- ===================== TITLE BAR ===================== -->
+            <Grid x:Name="TitleBar" Grid.Row="0"
+                  Background="{DynamicResource TitleBar}"
+                  ColumnDefinitions="Auto,*,Auto">
+
+                <!-- Traffic lights -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                            VerticalAlignment="Center" Margin="14,0,0,0">
+                    <Button x:Name="CloseButton" Classes="traffic close" />
+                    <Button x:Name="MinButton" Classes="traffic min" />
+                    <Button x:Name="ZoomButton" Classes="traffic zoom" />
+                </StackPanel>
+
+                <!-- Title -->
+                <TextBlock Grid.Column="1" Text="Open Fan Control"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           FontSize="13" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimary}" />
+
+                <!-- °C / °F -->
+                <Border Grid.Column="2" Classes="segmentGroup"
+                        VerticalAlignment="Center" Margin="0,0,14,0">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Classes="segment" GroupName="unit" Content="°C"
+                                     IsChecked="{Binding IsFahrenheit, Converter={x:Static conv:InverseBoolConverter.Instance}}" />
+                        <RadioButton Classes="segment" GroupName="unit" Content="°F"
+                                     IsChecked="{Binding IsFahrenheit}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ===================== BODY ===================== -->
+            <Grid Grid.Row="1" ColumnDefinitions="320,*">
+
+                <!-- Sidebar: temperatures -->
+                <Border Grid.Column="0" Background="{DynamicResource SidebarBackground}">
+                    <Grid RowDefinitions="Auto,*">
+                        <StackPanel Grid.Row="0" Margin="20,18,20,10">
+                            <TextBlock Text="SENSORS" Classes="section" />
+                            <TextBlock Text="Temperatures" Classes="h2" />
+                        </StackPanel>
+
+                        <ScrollViewer Grid.Row="1" Padding="14,0,14,14"
+                                      VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding Temperatures}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="*,Auto" Margin="6,7"
+                                                  VerticalAlignment="Center">
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Foreground="{DynamicResource TextPrimary}"
+                                                               FontSize="13" FontWeight="Medium"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding HardwareName}"
+                                                               Classes="caption"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource TextPrimary}"
+                                                           FontSize="18" FontWeight="SemiBold">
+                                                    <Run Text="{Binding ValueText}" />
+                                                </TextBlock>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="No temperature sensors detected."
+                                           Classes="caption" Margin="6,10"
+                                           IsVisible="{Binding !HasTemperatures}" />
+
+                                <!-- ===== Custom (derived) sensors ===== -->
+                                <Grid ColumnDefinitions="*,Auto" Margin="6,20,6,8">
+                                    <TextBlock Grid.Column="0" Text="CUSTOM SENSORS" Classes="section"
+                                               VerticalAlignment="Center" />
+                                    <Button Grid.Column="1" Content="+ Add"
+                                            Command="{Binding AddCustomSensorCommand}"
+                                            Padding="10,4" FontSize="12" CornerRadius="7"
+                                            Background="#0A84FF"
+                                            Foreground="White" BorderThickness="0" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding CustomSensors}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Classes="card" Margin="0,0,0,10" Padding="12">
+                                                <StackPanel Spacing="9">
+
+                                                    <!-- Name · value · delete -->
+                                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                                        <TextBox Grid.Column="0" Text="{Binding Name, Mode=TwoWay}"
+                                                                 FontSize="13" Padding="6,3" />
+                                                        <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                                   Margin="8,0"
+                                                                   FontSize="14" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource TextPrimary}"
+                                                                   Text="{Binding DisplaySensor.ValueText}" />
+                                                        <Button Grid.Column="2" Content="✕"
+                                                                Command="{Binding DeleteCommand}"
+                                                                Background="Transparent" BorderThickness="0"
+                                                                Foreground="{DynamicResource TextSecondary}"
+                                                                Padding="6,2" FontSize="12" />
+                                                    </Grid>
+
+                                                    <!-- Type -->
+                                                    <Border Classes="segmentGroup" HorizontalAlignment="Left">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <RadioButton Classes="segment" GroupName="{Binding Id}" Content="Mix"
+                                                                         IsChecked="{Binding SelectedType, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Mix}" />
+                                                            <RadioButton Classes="segment" GroupName="{Binding Id}" Content="Time avg"
+                                                                         IsChecked="{Binding SelectedType, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=TimeAverage}" />
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                    <!-- Mix editor -->
+                                                    <StackPanel Spacing="6" IsVisible="{Binding IsMix}">
+                                                        <ComboBox HorizontalAlignment="Stretch"
+                                                                  ItemsSource="{Binding Functions}"
+                                                                  SelectedItem="{Binding SelectedFunction}" />
+                                                        <TextBlock Text="Inputs" Classes="caption" />
+                                                        <ItemsControl ItemsSource="{Binding SourceOptions}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                                              Content="{Binding Name}" FontSize="12" />
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+
+                                                    <!-- Time-average editor -->
+                                                    <StackPanel Spacing="6" IsVisible="{Binding IsTimeAverage}">
+                                                        <ComboBox HorizontalAlignment="Stretch"
+                                                                  ItemsSource="{Binding AvailableSources}"
+                                                                  SelectedItem="{Binding SingleSource}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding Name}" FontSize="13" />
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                        <TextBlock Classes="caption"
+                                                                   Text="{Binding AverageSeconds, StringFormat='Average over {0:0}s'}" />
+                                                        <Slider Minimum="1" Maximum="60"
+                                                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                Value="{Binding AverageSeconds, Mode=TwoWay}" />
+                                                    </StackPanel>
+
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Main: fans -->
+                <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto,*" Margin="28,18,28,0">
+
+                    <!-- Hero / headline -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Overview" Classes="section" />
+                            <TextBlock Text="{Binding StatusMessage}" Classes="h2" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding HeadlineValue}" Classes="h1"
+                                       HorizontalAlignment="Right" />
+                            <TextBlock Text="{Binding HeadlineLabel}" Classes="caption"
+                                       HorizontalAlignment="Right" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Admin warning -->
+                    <Border Grid.Row="1" Margin="0,16,0,0" Padding="14,10"
+                            CornerRadius="10" Background="#33FF9F0A"
+                            BorderBrush="#66FF9F0A" BorderThickness="1"
+                            IsVisible="{Binding ShowAdminWarning}">
+                        <TextBlock TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   Text="Running without administrator rights — sensors are read-only. Restart the app as administrator to control fan speeds." />
+                    </Border>
+
+                    <TextBlock Grid.Row="2" Text="FANS" Classes="section" Margin="4,20,0,10" />
+
+                    <!-- Fan cards -->
+                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,4,18">
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{Binding Fans}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Classes="card" Margin="0,0,0,12">
+                                            <StackPanel>
+
+                                                <!-- Header row -->
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" Classes="h2" />
+                                                        <TextBlock Text="{Binding HardwareName}" Classes="caption" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" HorizontalAlignment="Right"
+                                                                VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding RpmText}" Classes="value"
+                                                                   HorizontalAlignment="Right" />
+                                                        <TextBlock Text="{Binding TargetText}" Classes="caption"
+                                                                   HorizontalAlignment="Right" />
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <!-- Mode selector -->
+                                                <Border Classes="segmentGroup" HorizontalAlignment="Left"
+                                                        Margin="0,14,0,0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <RadioButton Classes="segment" GroupName="{Binding Identifier}"
+                                                                     Content="Auto"
+                                                                     IsChecked="{Binding SelectedMode, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Auto}" />
+                                                        <RadioButton Classes="segment" GroupName="{Binding Identifier}"
+                                                                     Content="Constant"
+                                                                     IsChecked="{Binding SelectedMode, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Constant}" />
+                                                        <RadioButton Classes="segment" GroupName="{Binding Identifier}"
+                                                                     Content="Sensor-based"
+                                                                     IsChecked="{Binding SelectedMode, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=SensorBased}" />
+                                                        <RadioButton Classes="segment" GroupName="{Binding Identifier}"
+                                                                     Content="Trigger"
+                                                                     IsChecked="{Binding SelectedMode, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Trigger}" />
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <!-- Constant panel -->
+                                                <Grid ColumnDefinitions="*,56" Margin="0,14,0,0"
+                                                      IsVisible="{Binding IsConstant}">
+                                                    <Slider Grid.Column="0" Minimum="0" Maximum="100"
+                                                            TickFrequency="1" IsSnapToTickEnabled="True"
+                                                            Value="{Binding ConstantPercent, Mode=TwoWay}" />
+                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                               HorizontalAlignment="Right"
+                                                               FontSize="14" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextPrimary}"
+                                                               Text="{Binding ConstantPercent, StringFormat={}{0:0}%}" />
+                                                </Grid>
+
+                                                <!-- Sensor-based panel -->
+                                                <StackPanel Margin="0,14,0,0" Spacing="12"
+                                                            IsVisible="{Binding IsSensorBased}">
+                                                    <StackPanel Spacing="4">
+                                                        <TextBlock Text="Source sensor" Classes="caption" />
+                                                        <ComboBox HorizontalAlignment="Stretch"
+                                                                  ItemsSource="{Binding AvailableSensors}"
+                                                                  SelectedItem="{Binding SourceSensor}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <StackPanel>
+                                                                        <TextBlock Text="{Binding Name}" FontSize="13" />
+                                                                        <TextBlock Text="{Binding HardwareName}" Classes="caption" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                    </StackPanel>
+
+                                                    <!-- Multi-point graph curve -->
+                                                    <views:CurveEditor Height="180"
+                                                                       Points="{Binding CurvePoints}"
+                                                                       ChangedCommand="{Binding CurveChangedCommand}"
+                                                                       CurrentTemperature="{Binding CurrentTemperature}"
+                                                                       CurrentPercent="{Binding CurrentPercent}" />
+                                                    <TextBlock Classes="caption"
+                                                               Text="Click to add a point · drag to move · right-click to remove" />
+
+                                                    <Grid ColumnDefinitions="*,16,*">
+                                                        <StackPanel Grid.Column="0" Spacing="4">
+                                                            <TextBlock Classes="caption"
+                                                                       Text="{Binding Hysteresis, StringFormat='Hysteresis: {0:0.0}°'}" />
+                                                            <Slider Minimum="0" Maximum="10"
+                                                                    TickFrequency="0.5" IsSnapToTickEnabled="True"
+                                                                    Value="{Binding Hysteresis, Mode=TwoWay}" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2" Spacing="4">
+                                                            <TextBlock Classes="caption"
+                                                                       Text="{Binding ResponseTimeSeconds, StringFormat='Response time: {0:0.0}s'}" />
+                                                            <Slider Minimum="0" Maximum="15"
+                                                                    TickFrequency="0.5" IsSnapToTickEnabled="True"
+                                                                    Value="{Binding ResponseTimeSeconds, Mode=TwoWay}" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- Trigger panel -->
+                                                <StackPanel Margin="0,14,0,0" Spacing="12"
+                                                            IsVisible="{Binding IsTrigger}">
+                                                    <StackPanel Spacing="4">
+                                                        <TextBlock Text="Source sensor" Classes="caption" />
+                                                        <ComboBox HorizontalAlignment="Stretch"
+                                                                  ItemsSource="{Binding AvailableSensors}"
+                                                                  SelectedItem="{Binding SourceSensor}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <StackPanel>
+                                                                        <TextBlock Text="{Binding Name}" FontSize="13" />
+                                                                        <TextBlock Text="{Binding HardwareName}" Classes="caption" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                    </StackPanel>
+                                                    <Grid ColumnDefinitions="*,16,*">
+                                                        <StackPanel Grid.Column="0" Spacing="4">
+                                                            <TextBlock Classes="caption"
+                                                                       Text="{Binding TriggerIdleTemp, StringFormat='Idle up to: {0:0}°'}" />
+                                                            <Slider Minimum="20" Maximum="110"
+                                                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                    Value="{Binding TriggerIdleTemp, Mode=TwoWay}" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2" Spacing="4">
+                                                            <TextBlock Classes="caption"
+                                                                       Text="{Binding TriggerLoadTemp, StringFormat='Load at: {0:0}°'}" />
+                                                            <Slider Minimum="20" Maximum="110"
+                                                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                    Value="{Binding TriggerLoadTemp, Mode=TwoWay}" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    <Grid ColumnDefinitions="*,16,*">
+                                                        <StackPanel Grid.Column="0" Spacing="4">
+                                                            <TextBlock Classes="caption"
+                                                                       Text="{Binding TriggerIdlePercent, StringFormat='Idle speed: {0:0}%'}" />
+                                                            <Slider Minimum="0" Maximum="100"
+                                                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                    Value="{Binding TriggerIdlePercent, Mode=TwoWay}" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2" Spacing="4">
+                                                            <TextBlock Classes="caption"
+                                                                       Text="{Binding TriggerLoadPercent, StringFormat='Load speed: {0:0}%'}" />
+                                                            <Slider Minimum="0" Maximum="100"
+                                                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                    Value="{Binding TriggerLoadPercent, Mode=TwoWay}" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- Advanced tuning (any non-Auto mode) -->
+                                                <Expander Header="Advanced" Margin="0,14,0,0"
+                                                          IsVisible="{Binding IsControlled}">
+                                                    <StackPanel Spacing="12" Margin="0,8,0,0">
+                                                        <TextBlock Classes="caption" TextWrapping="Wrap"
+                                                                   Text="Min speed floors the duty; Stop below snaps to 0%; Kickstart nudges the fan off a stop; Avoid steers around a rattly band." />
+
+                                                        <Grid ColumnDefinitions="*,16,*">
+                                                            <StackPanel Grid.Column="0" Spacing="4">
+                                                                <TextBlock Classes="caption"
+                                                                           Text="{Binding MinimumPercent, StringFormat='Min speed: {0:0}%'}" />
+                                                                <Slider Minimum="0" Maximum="100"
+                                                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                        Value="{Binding MinimumPercent, Mode=TwoWay}" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" Spacing="4">
+                                                                <TextBlock Classes="caption"
+                                                                           Text="{Binding StopPercent, StringFormat='Stop below: {0:0}%'}" />
+                                                                <Slider Minimum="0" Maximum="100"
+                                                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                        Value="{Binding StopPercent, Mode=TwoWay}" />
+                                                            </StackPanel>
+                                                        </Grid>
+
+                                                        <Grid ColumnDefinitions="*,16,*">
+                                                            <StackPanel Grid.Column="0" Spacing="4">
+                                                                <TextBlock Classes="caption"
+                                                                           Text="{Binding StartPercent, StringFormat='Kickstart: {0:0}%'}" />
+                                                                <Slider Minimum="0" Maximum="100"
+                                                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                        Value="{Binding StartPercent, Mode=TwoWay}" />
+                                                            </StackPanel>
+                                                        </Grid>
+
+                                                        <Grid ColumnDefinitions="*,16,*">
+                                                            <StackPanel Grid.Column="0" Spacing="4">
+                                                                <TextBlock Classes="caption"
+                                                                           Text="{Binding AvoidFromPercent, StringFormat='Avoid from: {0:0}%'}" />
+                                                                <Slider Minimum="0" Maximum="100"
+                                                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                        Value="{Binding AvoidFromPercent, Mode=TwoWay}" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" Spacing="4">
+                                                                <TextBlock Classes="caption"
+                                                                           Text="{Binding AvoidToPercent, StringFormat='Avoid to: {0:0}%'}" />
+                                                                <Slider Minimum="0" Maximum="100"
+                                                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                                                        Value="{Binding AvoidToPercent, Mode=TwoWay}" />
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Expander>
+
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Empty state -->
+                            <Border Classes="card" IsVisible="{Binding !HasFans}">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="No controllable fans found" Classes="h2" />
+                                    <TextBlock Classes="caption" TextWrapping="Wrap"
+                                               Text="Your motherboard's fan controller may be unsupported, or the app needs administrator rights. You can still monitor temperatures on the left." />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+
+            <!-- ===================== FOOTER ===================== -->
+            <Border Grid.Row="2" Background="{DynamicResource TitleBar}"
+                    BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0"
+                    Padding="20,8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Profile" Classes="caption" VerticalAlignment="Center" />
+                        <ComboBox MinWidth="120" ItemsSource="{Binding Profiles}"
+                                  SelectedItem="{Binding SelectedProfile}" />
+                        <TextBox Width="130" Watermark="Name" FontSize="12" Padding="6,3"
+                                 Text="{Binding ProfileName, Mode=TwoWay}" />
+                        <Button Content="New" FontSize="12" Padding="10,4"
+                                Command="{Binding NewProfileCommand}" />
+                        <Button Content="Duplicate" FontSize="12" Padding="10,4"
+                                Command="{Binding DuplicateProfileCommand}" />
+                        <Button Content="Delete" FontSize="12" Padding="10,4"
+                                Command="{Binding DeleteProfileCommand}" />
+                    </StackPanel>
+                    <CheckBox Grid.Column="1" Content="Start with Windows"
+                              IsChecked="{Binding StartWithWindows}"
+                              IsEnabled="{Binding CanAutostart}"
+                              Foreground="{DynamicResource TextPrimary}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

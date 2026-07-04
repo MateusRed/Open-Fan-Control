@@ -1,0 +1,21 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:OpenFanControl"
+             x:Class="OpenFanControl.App"
+             RequestedThemeVariant="Default">
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://OpenFanControl/Styles/MacTheme.axaml" />
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- macOS-inspired palette -->
+            <Color x:Key="AccentColor">#0A84FF</Color>
+            <Color x:Key="AccentColorPressed">#0060DF</Color>
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>
