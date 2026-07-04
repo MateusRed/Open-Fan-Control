@@ -103,6 +103,12 @@ dotnet publish src/OpenFanControl -c Release -r win-x64 --self-contained `
   temperatures always take effect immediately.
 - On quit or crash, all fans return to **Auto** (firmware) control.
 
+## Contributing
+
+Contributions are welcome — bug fixes, features, docs, and especially **hardware compatibility
+reports**. See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, architecture notes, and how to
+test fan control safely.
+
 ## License & credits
 
 - **MIT** — see [LICENSE](LICENSE).
