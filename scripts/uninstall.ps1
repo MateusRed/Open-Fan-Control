@@ -1,7 +1,7 @@
 # Open Fan Control — uninstaller. Removes the app and shortcuts.
 # Settings in %AppData%\OpenFanControl are kept (delete that folder too for a clean wipe).
 #
-#   irm https://raw.githubusercontent.com/MateusRed/Open-Fan-Controler/main/scripts/uninstall.ps1 | iex
+#   irm https://raw.githubusercontent.com/MateusRed/Open-Fan-Control/main/scripts/uninstall.ps1 | iex
 $ErrorActionPreference = 'SilentlyContinue'
 
 Get-Process OpenFanControl | Stop-Process -Force

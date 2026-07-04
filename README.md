@@ -53,7 +53,7 @@ Built with **.NET 8 + Avalonia UI** (one native runtime, no Electron) and [Libre
 Open **PowerShell** and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/MateusRed/Open-Fan-Controler/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/MateusRed/Open-Fan-Control/main/scripts/install.ps1 | iex
 ```
 
 This downloads the latest self-contained build to `%LocalAppData%\OpenFanControl` and adds
@@ -61,7 +61,7 @@ Start-Menu & Desktop shortcuts. Launch it and accept the UAC prompt (fan control
 
 ### Manual
 
-Download `OpenFanControl.exe` from the [latest release](https://github.com/MateusRed/Open-Fan-Controler/releases/latest)
+Download `OpenFanControl.exe` from the [latest release](https://github.com/MateusRed/Open-Fan-Control/releases/latest)
 and run it. It's a single self-contained file — no .NET install required.
 
 ## Requirements

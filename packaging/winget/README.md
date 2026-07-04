@@ -16,7 +16,7 @@ Commands:
   - openfancontrol
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/MateusRed/Open-Fan-Controler/releases/download/v1.0.0/OpenFanControl.exe
+    InstallerUrl: https://github.com/MateusRed/Open-Fan-Control/releases/download/v1.0.0/OpenFanControl.exe
     InstallerSha256: <sha256 of the exe>
 ManifestType: installer
 ManifestVersion: 1.6.0
@@ -34,5 +34,5 @@ description) and `OpenFanControl.yaml` (version). See the winget-pkgs docs, or u
 
 ```powershell
 winget install wingetcreate
-wingetcreate new https://github.com/MateusRed/Open-Fan-Controler/releases/download/v1.0.0/OpenFanControl.exe
+wingetcreate new https://github.com/MateusRed/Open-Fan-Control/releases/download/v1.0.0/OpenFanControl.exe
 ```

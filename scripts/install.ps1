@@ -1,13 +1,13 @@
 # Open Fan Control — quick installer.
 #
-#   irm https://raw.githubusercontent.com/MateusRed/Open-Fan-Controler/main/scripts/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/MateusRed/Open-Fan-Control/main/scripts/install.ps1 | iex
 #
 # Downloads the latest self-contained build into %LocalAppData%\OpenFanControl and adds
 # Start-Menu & Desktop shortcuts. No .NET install required. Fan control needs admin, so the
 # app requests elevation (UAC) when launched.
 $ErrorActionPreference = 'Stop'
 
-$repo = 'MateusRed/Open-Fan-Controler'
+$repo = 'MateusRed/Open-Fan-Control'
 $dir  = Join-Path $env:LOCALAPPDATA 'OpenFanControl'
 $exe  = Join-Path $dir 'OpenFanControl.exe'
 $url  = "https://github.com/$repo/releases/latest/download/OpenFanControl.exe"
